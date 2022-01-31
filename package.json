@@ -1,6 +1,6 @@
 {
   "name": "@potentii/logger-js",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Logger for JS",
   "author": "Guilherme Reginaldo Ruella <potentii@gmail.com>",
   "license": "MIT",
@@ -32,6 +32,7 @@
   "homepage": "https://github.com/Potentii/logger-js#readme",
   
   "dependencies": {
+    "setimmediate": "1.0.5",
     "winston": "3.3.3"
   }
   
