@@ -1,5 +1,5 @@
 import winston from 'winston';
-import E_LOG_LEVELS from "./libs/e-log-levels.mjs";
+import E_LOG_LEVELS from "./e-log-levels.mjs";
 
 
 export default class LoggerJs {

@@ -1,18 +1,18 @@
 {
   "name": "@potentii/logger-js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Logger for JS",
   "author": "Guilherme Reginaldo Ruella <potentii@gmail.com>",
   "license": "MIT",
   
-  "main": "logger-js.mjs",
+  "main": "main.mjs",
   "type": "module",
   
   "scripts": {
   },
 
   "files": [
-    "logger-js.mjs",
+    "main.mjs",
     "libs/**/*",
     "README.md",
     "LICENSE"
