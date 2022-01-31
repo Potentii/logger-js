@@ -1,0 +1,38 @@
+{
+  "name": "@potentii/logger-js",
+  "version": "1.0.0",
+  "description": "Logger for JS",
+  "author": "Guilherme Reginaldo Ruella <potentii@gmail.com>",
+  "license": "MIT",
+  
+  "main": "main.mjs",
+  "type": "module",
+  
+  "scripts": {
+  },
+
+  "files": [
+    "logger-js.mjs",
+    "libs/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "log",
+    "logger",
+    "winston"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Potentii/logger-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Potentii/logger-js/issues"
+  },
+  "homepage": "https://github.com/Potentii/logger-js#readme",
+  
+  "dependencies": {
+    "winston": "3.3.3"
+  }
+  
+}
