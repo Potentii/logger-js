@@ -1,5 +1,5 @@
 /**
- * @typedef {string} ELogLevel
+ * @typedef {'debug'|'verbose'|'info'|'warn'|'error'} ELogLevel
  */
 /**
  *
