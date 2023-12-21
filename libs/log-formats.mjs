@@ -10,10 +10,14 @@ const humanV1 = format.printf(({ level, message, timestamp, err, code, data }) =
     const dataStr = data ? ` | ${JSON.stringify(data)}` : '';
     let errStr = '';
     if(err){
-        errStr += '\n' + (err.stack || err);
+        errStr += ` | Error: ${err.message}`;
         try{
-            errStr += '\n' + JSON.stringify(err, null, 4);
-        } catch (err2){}
+            errStr += ` | ${JSON.stringify(err)}`;
+        } catch (err2){
+            errStr += ` | <<Failed to serialize error as JSON, cause: ${err2.message}>>`;
+        }
+
+        errStr += `\nStacktrace: ${err.stack}`;
     }
 
     return `${timestampStr} [${levelColor}${levelStr}${E_COLORS.RESET}] [${code}]: ${message}${dataStr}${errStr}`;
