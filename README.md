@@ -42,7 +42,7 @@ try{
 
 <br>
 
-Using **Dynamic Logging** withing an `express` request:
+Using **Dynamic Logging** within an `express` request:
 
 ```javascript
 // Define a handler to inject the dynamic logger (before the actual handlers):
