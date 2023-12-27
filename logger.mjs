@@ -1,93 +1,11 @@
 import winston from "winston";
 import E_LOG_LEVELS from "./libs/e-log-levels.mjs";
 import LogFormats from "./libs/log-formats.mjs";
+import LoggerWorker from "./libs/logger-worker.mjs";
 
 
-// let global;
-// let globalInstantiated = false;
-// let globalAutoconfigured = false;
-
-// function getEnv(){
-//     return process?.env;
-// }
-
-// const MAX_LOGGERS = 4;
 const DEFAULT_LEVEL = 'info';
 const DEFAULT_SERVICE = 'app';
-// const DEFAULT_FORMAT = LogFormats.json;
-
-
-
-//
-// /**
-//  *
-//  * @return {Logger}
-//  */
-// function initGlobal(){
-//     if(globalInstantiated && globalAutoconfigured){
-//         return global;
-//     } else {
-//
-//         const loggersPrefixes = [];
-//         for (let i = 0; i < MAX_LOGGERS; i++)
-//             loggersPrefixes.push(`LOGGER__GLOBAL${i}`);
-//
-//         const logsPrefixesToAutoConfigure = loggersPrefixes.filter(prefix => getEnv()?.[`${prefix}__AUTOCONFIG`] == 'true');
-//         if(logsPrefixesToAutoConfigure.length){
-//
-//
-//             const transports = logsPrefixesToAutoConfigure.map(prefix => {
-//
-//                 let formatTemplateKey = getEnv()?.[`${prefix}__FORMAT_TEMPLATE`];
-//                 const logFormat = formatTemplateKey?.trim().length
-//                     ? LogFormats[formatTemplateKey]
-//                     : DEFAULT_FORMAT;
-//                 if (!logFormat)
-//                     throw new TypeError(`Unknown log format template "${formatTemplateKey}" on "${prefix}__FORMAT_TEMPLATE", valid values are: [${Object.keys(LogFormats).join(', ')}]`);
-//
-//                 let transportType = getEnv()?.[`${prefix}__FILE`];
-//
-//             });
-//
-//             let formatTemplate = getEnv()?.LOGGER__GLOBAL__FORMAT_TEMPLATE;
-//             if (!Object.keys(LogFormats).includes(formatTemplate)) {
-//                 throw new TypeError(`Invalid`);
-//             }
-//             formatTemplate = ? formatTemplate :
-//             if (!formatTemplate)
-//                 formatTemplate = DEFAULT_FORMAT
-//
-//
-//         } else if(!globalInstantiated){
-//             global = new Logger(
-//                 DEFAULT_LEVEL,
-//                 DEFAULT_SERVICE,
-//                 [ new winston.transports.Console({ format: DEFAULT_FORMAT }) ]
-//             );
-//             globalInstantiated = true;
-//             globalAutoconfigured = false;
-//         }
-//
-//         const hasAutoConfig = getEnv()?.[`LOGGER__GLOBAL${i}__AUTOCONFIG`] == 'true';
-//
-//
-//         if (getEnv()?.LOGGER__GLOBAL__AUTOCONFIG == 'true') {
-//
-//
-//
-//
-//             global = new Logger(
-//                 DEFAULT_LEVEL,
-//                 DEFAULT_SERVICE,
-//                 [new winston.transports.Console({format: LogFormats.human})]
-//             );
-//             globalInstantiated = true;
-//             globalAutoconfigured = true;
-//         }
-//     }
-//
-//     return global;
-// }
 
 
 export default class Logger {
@@ -98,9 +16,9 @@ export default class Logger {
     static #global = new Logger(DEFAULT_LEVEL, DEFAULT_SERVICE, [ new winston.transports.Console({ format: LogFormats.json }) ]);
 
     /**
-     * @type {winston.Logger}
+     * @type {LoggerWorker}
      */
-    #instance;
+    #worker;
 
 
     /**
@@ -110,28 +28,23 @@ export default class Logger {
      * @param {(ConsoleTransportInstance|FileTransportInstance|HttpTransportInstance|StreamTransportInstance)[]} [transports]
      */
     constructor(level, service, transports) {
-        this.#instance = winston.createLogger({
+        this.#worker = new LoggerWorker(winston.createLogger({
             level: level || DEFAULT_LEVEL,
             defaultMeta: { service: service || DEFAULT_SERVICE },
             transports: transports,
-        });
+        }), {});
     }
 
     /**
      *
      */
     reset(){
-        this.#instance = winston.createLogger({
+        this.#worker.instance = winston.createLogger({
             level: DEFAULT_LEVEL,
             defaultMeta: { service: DEFAULT_SERVICE },
             transports: [],
         });
     }
-
-
-    // initFromEnv(){
-    //
-    // }
 
 
     /**
@@ -147,7 +60,7 @@ export default class Logger {
      * @type {winston.Logger}
      */
     get instance(){
-        return this.#instance;
+        return this.#worker.instance;
     }
 
     /**
@@ -155,7 +68,7 @@ export default class Logger {
      * @param {string} level
      */
     set level(level){
-        this.#instance.level = level;
+        this.#worker.instance.level = level;
     }
 
     /**
@@ -173,7 +86,7 @@ export default class Logger {
      * @param {string} service
      */
     set service(service){
-        this.#instance.defaultMeta.service = service;
+        this.#worker.instance.defaultMeta.service = service;
     }
 
     /**
@@ -192,7 +105,7 @@ export default class Logger {
      * @return {Logger}
      */
     addTransport(transport){
-        this.#instance.add(transport);
+        this.#worker.instance.add(transport);
         return this;
     }
 
@@ -230,12 +143,7 @@ export default class Logger {
      * @param {object|*[]} [data]
      */
     debug(code, message, data) {
-        this.#instance.log({
-            level: E_LOG_LEVELS.debug,
-            code: code,
-            message: message,
-            data: data,
-        });
+        this.#worker.debug(code, message, data);
     }
 
     /**
@@ -255,12 +163,7 @@ export default class Logger {
      * @param {object|*[]} [data]
      */
     verbose(code, message, data) {
-        this.#instance.log({
-            level: E_LOG_LEVELS.verbose,
-            code: code,
-            message: message,
-            data: data,
-        });
+        this.#worker.verbose(code, message, data);
     }
 
     /**
@@ -280,12 +183,7 @@ export default class Logger {
      * @param {object|*[]} [data]
      */
     info(code, message, data) {
-        this.#instance.log({
-            level: E_LOG_LEVELS.info,
-            code: code,
-            message: message,
-            data: data,
-        });
+        this.#worker.info(code, message, data);
     }
 
     /**
@@ -306,13 +204,7 @@ export default class Logger {
      * @param {object|*[]} [data]
      */
     warn(code, message, err, data) {
-        this.#instance.log({
-            level: E_LOG_LEVELS.warn,
-            code: code,
-            message: message,
-            err: err,
-            data: data,
-        });
+        this.#worker.warn(code, message, err, data);
     }
 
     /**
@@ -334,13 +226,7 @@ export default class Logger {
      * @param {object|*[]} [data]
      */
     error(code, message, err, data) {
-        this.#instance.log({
-            level: E_LOG_LEVELS.error,
-            code: code,
-            message: message,
-            err: err,
-            data: data,
-        });
+        this.#worker.error(code, message, err, data);
     }
 
     /**
@@ -352,6 +238,25 @@ export default class Logger {
      */
     static error(code, message, err, data) {
         Logger.#global.error(code, message, err, data);
+    }
+
+
+    /**
+     *
+     * @param {?object} ctx
+     * @return {LoggerWorker}
+     */
+    dynamic(ctx){
+        return new LoggerWorker(this.#worker.instance, ctx);
+    }
+
+    /**
+     *
+     * @param {?object} ctx
+     * @return {LoggerWorker}
+     */
+    static dynamic(ctx){
+        return Logger.#global.dynamic(ctx);
     }
 
 }
