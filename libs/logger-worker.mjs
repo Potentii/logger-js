@@ -125,6 +125,17 @@ export default class LoggerWorker{
     }
 
 
+    /**
+     *
+     * @param {?object} ctx
+     * @return {LoggerWorker}
+     */
+    set(ctx){
+        this.#ctx = { ...(this.#ctx || {}), ...(ctx || {}) };
+        return this;
+    }
+
+
     #buildData(data, ctx){
         return { ...(ctx || {}), ...(data || {}) };
     }
